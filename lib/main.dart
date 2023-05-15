@@ -261,11 +261,10 @@ class HistoryListView extends StatelessWidget {
 
   ///打开浏览器访问链接
   void _launchUrl(Uri url) async {
-    // if (await canLaunchUrl(url)) {
-    //   await launchUrl(url);
-    // } else {
-    //   throw '打开 $url 错误';
-    // }
-    await launchUrl(url);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      debugPrint('打开 $url 错误');
+    }
   }
 }

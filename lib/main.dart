@@ -8,32 +8,18 @@ import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(
-    MaterialApp(
-      home: QRScannerExample(
-        key: qrExampleState,
-      ),
+    const MaterialApp(
+      home: QRScannerExample(),
     ),
   );
 }
 
-///使用global key获取当前state对象
-final GlobalKey<_QRScannerExampleState> qrExampleState =
-    GlobalKey<_QRScannerExampleState>(debugLabel: '_QRScannerExampleState');
-
 ///示例app
 class QRScannerExample extends StatefulWidget {
-  QRScannerExample({super.key});
+  const QRScannerExample({super.key});
 
   @override
   State<QRScannerExample> createState() => _QRScannerExampleState();
-
-  ///数据添加回调函数
-  void onDataAdded(Barcode newData) {
-    final state = qrExampleState.currentState;
-    if (state != null) {
-      state.addData(newData);
-    }
-  }
 }
 
 /// 扫描示例app
@@ -58,9 +44,9 @@ class _QRScannerExampleState extends State<QRScannerExample> {
 
   ///添加历史数据
   void addData(Barcode newData) {
-    setState(() {
-      scanHistorys.add(newData);
-    });
+    // setState(() {// scanpage已经刷新了，历史页面未加载不用刷新，app页面也不用
+    scanHistorys.add(newData);
+    // });
   }
 
   @override
@@ -68,20 +54,22 @@ class _QRScannerExampleState extends State<QRScannerExample> {
     //根据当前坐标选择页面
     switch (_selectedIndex) {
       case 0:
-        curPage = ScanPage();
+        curPage = ScanPage(
+          onGetScanData: addData,
+        );
         break;
       case 1:
         curPage = HistoryPage(scanHistorys: scanHistorys);
         break;
       default:
-        curPage = ScanPage();
+        throw '错误的tab index';
     }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("二维码扫描器"),
       ),
-      body: curPage,
+      body: curPage, // 当前页面
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -103,7 +91,8 @@ class _QRScannerExampleState extends State<QRScannerExample> {
 
 ///扫描子页面
 class ScanPage extends StatefulWidget {
-  const ScanPage({super.key});
+  final void Function(Barcode newData) onGetScanData;
+  const ScanPage({super.key, required this.onGetScanData});
 
   @override
   State<StatefulWidget> createState() => _ScanPage();
@@ -122,6 +111,8 @@ class _ScanPage extends State<ScanPage> {
 
   ///扫描控制器
   QRViewController? controller;
+
+  late Function onGetScanData;
 
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
@@ -170,17 +161,7 @@ class _ScanPage extends State<ScanPage> {
       controller.pauseCamera();
       setState(() {
         result = scanData;
-        //获取父级 widget
-        final parent =
-            context.findAncestorWidgetOfExactType<QRScannerExample>();
-        if (parent != null) {
-          //添加到历史列表
-          parent.onDataAdded(scanData);
-        } else {
-          Dialog(
-            child: Text('没有找到父控件'),
-          );
-        }
+        widget.onGetScanData(result!);
       });
     });
   }
@@ -194,13 +175,13 @@ class _ScanPage extends State<ScanPage> {
 
 ///历史记录页面
 class HistoryPage extends StatelessWidget {
-  List<Barcode> scanHistorys;
-  HistoryPage({super.key, required this.scanHistorys});
+  final List<Barcode> scanHistorys;
+  const HistoryPage({super.key, required this.scanHistorys});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
+      padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       child: HistoryListView(scanHistorys: scanHistorys),
     );
   }
@@ -208,8 +189,8 @@ class HistoryPage extends StatelessWidget {
 
 ///历史记录列表
 class HistoryListView extends StatelessWidget {
-  List<Barcode> scanHistorys;
-  HistoryListView({super.key, required this.scanHistorys});
+  final List<Barcode> scanHistorys;
+  const HistoryListView({super.key, required this.scanHistorys});
 
   @override
   Widget build(BuildContext context) {
@@ -218,10 +199,10 @@ class HistoryListView extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         return ListTile(
           leading: GestureDetector(
-            child: Icon(Icons.qr_code_2),
+            child: const Icon(Icons.qr_code_2),
             onTap: () {
               // 在浏览器中打开
-              _launchUrl(Uri.parse(scanHistorys[index].code!));
+              _launchUrl(Uri.parse(scanHistorys[index].code!), context);
             },
           ),
           title: GestureDetector(
@@ -230,25 +211,25 @@ class HistoryListView extends StatelessWidget {
               showDialog(
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
-                  title: Text('详情'),
+                  title: const Text('详情'),
                   content: Text(scanHistorys[index].code!), // 显示过长的链接
                   actions: <Widget>[
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text('OK'),
+                      child: const Text('OK'),
                     ),
                   ],
                 ),
               );
             },
           ),
-          subtitle: Text('${describeEnum(scanHistorys[index].format)}'),
+          subtitle: Text(describeEnum(scanHistorys[index].format)),
           trailing: GestureDetector(
-            child: Icon(Icons.content_copy),
+            child: const Icon(Icons.content_copy),
             onTap: () {
               Clipboard.setData(
                   ClipboardData(text: scanHistorys[index].code)); // 复制到剪贴板
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text('已复制到剪贴板'),
                 duration: Duration(seconds: 1),
               ));
@@ -260,11 +241,14 @@ class HistoryListView extends StatelessWidget {
   }
 
   ///打开浏览器访问链接
-  void _launchUrl(Uri url) async {
+  void _launchUrl(Uri url, BuildContext context) async {
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
-      debugPrint('打开 $url 错误');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('没有找到合适的处理应用'),
+        duration: Duration(seconds: 1),
+      ));
     }
   }
 }

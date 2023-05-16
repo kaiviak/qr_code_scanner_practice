@@ -24,8 +24,8 @@ class QRScannerExample extends StatefulWidget {
 
 /// 扫描示例app
 class _QRScannerExampleState extends State<QRScannerExample> {
-  ///扫描结果列表
-  List<Barcode> scanHistorys = [];
+  ///扫描结果列表, final只是不能重新分配，内容是可以修改的
+  final List<Barcode> scanHistorys = [];
 
   ///当前页面
   Widget? curPage;

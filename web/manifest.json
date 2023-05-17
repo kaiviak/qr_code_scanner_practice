@@ -1,6 +1,6 @@
 {
-    "name": "scankit_demo",
-    "short_name": "scankit_demo",
+    "name": "qr_code_scanner_practice",
+    "short_name": "qr_code_scanner_practice",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

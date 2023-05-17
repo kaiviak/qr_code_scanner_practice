@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.scankit_demo">
+    package="com.example.qr_code_scanner_practice">
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <!-- Provide required visibility configuration for API level 30 and above -->
@@ -26,7 +26,7 @@
     </queries>
     
     <application
-        android:label="scankit_demo"
+        android:label="qr_code_scanner_practice"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

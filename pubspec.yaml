@@ -1,5 +1,5 @@
-name: scankit_demo
-description: A new Flutter project.
+name: qr_code_scanner_practice
+description: 一个qr_code_scanner库的练手项目
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.

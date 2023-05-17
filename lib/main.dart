@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -136,9 +138,14 @@ class _ScanPage extends State<ScanPage> {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
             child: QRView(
-              key: qrKey,
-              onQRViewCreated: _onQRViewCreated,
-            ),
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+                overlay: QrScannerOverlayShape(
+                  borderColor: Colors.green,
+                  borderWidth: 5,
+                  borderRadius: 10,
+                  borderLength: 30,
+                )),
           ),
         ),
         Expanded(
@@ -228,7 +235,7 @@ class HistoryListView extends StatelessWidget {
             child: const Icon(Icons.content_copy),
             onTap: () {
               Clipboard.setData(
-                  ClipboardData(text: scanHistorys[index].code)); // 复制到剪贴板
+                  ClipboardData(text: scanHistorys[index].code!)); // 复制到剪贴板
               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                 content: Text('已复制到剪贴板'),
                 duration: Duration(seconds: 1),
@@ -245,6 +252,8 @@ class HistoryListView extends StatelessWidget {
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
+      // ignore: use_build_context_synchronously
+      if (!context.mounted) return; // 异步函数中使用BuildContext先检测预防出错
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('没有找到合适的处理应用'),
         duration: Duration(seconds: 1),

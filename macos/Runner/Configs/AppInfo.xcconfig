@@ -8,7 +8,7 @@
 PRODUCT_NAME = qr_code_scanner_practice
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.scankitDemo
+PRODUCT_BUNDLE_IDENTIFIER = com.example.qr_code_scanner_practice
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2023 com.example. All rights reserved.
